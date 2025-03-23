@@ -1,0 +1,5 @@
+<plugin name="gz_planar_move::PlanarMove"
+        filename="libgz_planar_move.so">
+  <description>Custom planar movement plugin</description>
+  <interface>gz::sim::System</interface>
+</plugin>
