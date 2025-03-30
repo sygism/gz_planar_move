@@ -37,7 +37,7 @@ rosdep install --from-paths src --ignore-src -r -y
 ## **Building the package**
 ```bash
 cd ~/<YOUR_WORKSPACE_NAME_HERE>
-colcon build --packages-select robotont_nuc_description
+colcon build --packages-select gz_planar_move
 ```
 
 ## **Usage**
