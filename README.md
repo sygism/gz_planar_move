@@ -18,7 +18,7 @@ Package for controlling a 3-wheeled omnidirectional robot in gz sim 8.
 ### **1. Clone the Repository**
 ```bash
 cd ~/<YOUR_WORKSPACE_NAME_HERE>/src
-git clone https://github.com/sygism/robotont_nuc_description.git
+git clone https://github.com/sygism/gz_planar_move.git
 ```
 
 ## **Dependencies**
