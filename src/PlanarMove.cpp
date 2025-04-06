@@ -68,9 +68,14 @@ namespace gz_planar_move
             cmd_vel.angular.z = 0.0;
         }
 
-        double w_back  = (cmd_vel.linear.y + wheel_distance * cmd_vel.angular.z) / wheel_radius;
-        double w_right = ((sqrt(3) * cmd_vel.linear.x - cmd_vel.linear.y) + wheel_distance * cmd_vel.angular.z) / wheel_radius;
-        double w_left  = ((-sqrt(3) * cmd_vel.linear.x - cmd_vel.linear.y) + wheel_distance * cmd_vel.angular.z) / wheel_radius;
+        const double vx = cmd_vel.linear.x;
+        const double vy = cmd_vel.linear.y;
+        const double wz = cmd_vel.angular.z;
+
+        double w_back  = (vy + wheel_distance * wz) / wheel_radius;
+        const double w_right = (-0.866 * vx - 0.5 * vy + wheel_distance * wz) / wheel_radius;
+        const double w_left  = ( 0.866 * vx - 0.5 * vy + wheel_distance * wz) / wheel_radius;
+
 
         _ecm.SetComponentData<gz::sim::components::JointVelocityCmd>(joint_back, {w_back});
         _ecm.SetComponentData<gz::sim::components::JointVelocityCmd>(joint_right, {w_right});
