@@ -1,23 +1,16 @@
-#ifndef PLANAR_MOVE_HPP
-#define PLANAR_MOVE_HPP
+#ifndef GZ_PLANAR_MOVE_HPP
+#define GZ_PLANAR_MOVE_HPP
+
+#include <mutex>
+#include <memory>
+
+#include <rclcpp/rclcpp.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 
 #include <gz/sim/System.hh>
 #include <gz/sim/Model.hh>
 #include <gz/sim/EntityComponentManager.hh>
-#include <gz/sim/components/JointVelocityCmd.hh>
-#include <gz/transport/Node.hh>
-#include <gz/math/Vector3.hh>
-#include <geometry_msgs/msg/twist.hpp>
-#include <gz/msgs/double.pb.h>
-#include <rclcpp/rclcpp.hpp>
-
-#define DEFAULT_NS "robot"
-#define DEFAULT_VELOCITY_CMD_TOPIC "/cmd_vel"
-#define DEFAULT_BACK_JOINT "rim_back_joint"
-#define DEFAULT_RIGHT_JOINT "rim_right_joint"
-#define DEFAULT_LEFT_JOINT "rim_left_joint"
-#define DEFAULT_WHEEL_RADIUS 0.06
-#define DEFAULT_WHEEL_DISTANCE 0.14
+#include <gz/math/Pose3.hh>
 
 namespace gz_planar_move
 {
@@ -27,37 +20,29 @@ namespace gz_planar_move
     {
     public:
         PlanarMove();
-        void Configure(const gz::sim::Entity &_entity,
-                       const std::shared_ptr<const sdf::Element> &,
-                       gz::sim::EntityComponentManager &_ecm,
-                       gz::sim::EventManager &) override;
+        ~PlanarMove() = default;
 
-        void PreUpdate(const gz::sim::UpdateInfo &,
-                       gz::sim::EntityComponentManager &_ecm) override;
+        void Configure(
+            const gz::sim::Entity &_entity,
+            const std::shared_ptr<const sdf::Element> &sdf,
+            gz::sim::EntityComponentManager &_ecm,
+            gz::sim::EventManager &_eventMgr) override;
+
+        void PreUpdate(
+            const gz::sim::UpdateInfo &_info,
+            gz::sim::EntityComponentManager &_ecm) override;
 
     private:
-        void OnCmdVel(const geometry_msgs::msg::Twist::SharedPtr _msg);
-
         gz::sim::Model model{gz::sim::kNullEntity};
-        geometry_msgs::msg::Twist cmd_vel;
-        rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr sub;
+        rclcpp::Node::SharedPtr ros_node;
+        rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub;
 
-        gz::sim::Entity joint_back;
-        gz::sim::Entity joint_right;
-        gz::sim::Entity joint_left;
+        gz::math::Pose3d latest_pose{gz::math::Pose3d::Zero};
+        gz::math::Pose3d last_applied_pose{gz::math::Pose3d::Zero};
+        std::mutex pose_mutex;
 
-        // Parameters
-        double wheel_radius;
-        double wheel_distance;
-        std::string velocity_cmd_topic;
-        std::string back_joint;
-        std::string left_joint;
-        std::string right_joint;
-        std::string ns;
-
-        std::shared_ptr<rclcpp::Node> ros_node;
-        rclcpp::Time last_cmd_time_;
+        void OnOdom(const nav_msgs::msg::Odometry::SharedPtr msg);
     };
 } // namespace gz_planar_move
 
-#endif // PLANAR_MOVE_HPP
+#endif // GZ_PLANAR_MOVE_HPP
